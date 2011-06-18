@@ -1,5 +1,11 @@
 $current_cell = 0
 
+class Symbol
+  def downcase
+    self.to_s.tr 'QWERTYUIOPASDFGHJKLZXCVBNM', 'qwertyuiopasdfghjklzxcvbnm'
+  end
+end
+
 [
 :S,
 :K,
