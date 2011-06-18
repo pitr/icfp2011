@@ -33,11 +33,15 @@ def pa(op, c=$current_cell)
 end
 
 # Applies a _p function
-def pp(_op, _p = nil, c=$current_cell)
-  k! c
-  s! c
-  send _op, c
-  send _p, c unless _p.nil?
+def pp(_op, *_p)
+  k!
+  s!
+  send _op
+  if _p.length > 1
+    pp _p.shift, *_p
+  else
+    send _p.first unless _p.nil?
+  end
 end
 
 def slot(c=$current_cell, &block)
