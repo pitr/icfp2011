@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+# run as:
+#   ltg match killa dummy 2>&1 | grep "=\|Exception" | grep -v Sys_error | head -n 30
+#
+# 2>&1 because ltg send to stderr
+# grep for = and Exception to see slots and any errors
+# grep agains Sys_error 'cause I get pipe errors, bullshit
+# head 30 in case you got an infinite loop...
+
+
+
+require './lib/dsl'
+# DSL docs:
+# all commands use small letters
+#
+# To apply as function (code 2) add ! at the end
+#
+# default slot is 0, pass an integer to use another
+#
+# Eg. (inf loop example) s ; get ; i ; zero
+
+slot 0 do
+    s; inc; i; 
+end
+
+slot 1 do
+    s; get; k!; s!; get; zero; 
+end
+
+slot 0 do
+    put!; get; k!; s!; succ; zero; zero
+end
