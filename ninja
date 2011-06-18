@@ -20,12 +20,36 @@ require './lib/dsl'
 #
 # Eg. (inf loop example) s ; get ; i ; zero
 
-slot 0 do
-    s; inc; i # set up inner code
+#slot 0 do
+#    s; inc; i # set up inner code
+#
+#    slot(1) { s; get; pp :get, :zero }
+#
+#    put! # clear slot 0
+#    get; pp :succ, :zero
+#    zero # execute
+#end
 
-    slot(1) { s; get; pp :get, :zero }
+def recurse_attack()
+    slot 0 do
+        zero; succ!;
+        dbl!; dbl!; dbl!; dbl!; dbl!; dbl!; dbl!; dbl!;
+        dbl!; dbl!; dbl!; dbl!; #dbl!; dbl!; dbl!; dbl!;
+    end
 
-    put! # clear slot 0
-    get; pp :succ, :zero
-    zero # execute
+    slot 1 do
+        attack; zero; pp :succ, :zero; pp :get, :zero
+    end
 end
+
+def recurse_dec()
+    slot 0 do
+        slot(1) { s; dec; i } 
+        s; get; pp :get, :succ, :zero; zero
+    end
+end
+
+recurse_dec
+slot(0) { put! }
+slot(1) { put! }
+recurse_attack
