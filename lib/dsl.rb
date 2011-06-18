@@ -1,12 +1,9 @@
 $current_cell = 0
 
-{
-  :s => :S,
-  :k => :K,
-  :i => :I
-}.each{|m,op|eval"def #{m}(c=$current_cell); pa :#{op},c; end;def #{m}!(c=$current_cell); op :#{op},c; end;"}
-
 [
+:S,
+:K,
+:I,
 :zero,
 :succ,
 :dbl,
@@ -19,7 +16,7 @@ $current_cell = 0
 :copy,
 :revive,
 :zombie
-].each{|op|eval"def #{op}(c=$current_cell); pa :#{op},c; end;def #{op}!(c=$current_cell); op :#{op},c; end;"}
+].each{|op|eval"def #{op.downcase}(c=$current_cell); pa :#{op},c; end;def #{op.downcase}!(c=$current_cell); op :#{op},c; end;"}
 
 def op(op, c=$current_cell)
   return op.each {|op2| op op2, c} if op.is_a? Array
@@ -36,15 +33,15 @@ def pa(op, c=$current_cell)
 end
 
 # Applies a _p function
-def pp(_op, _p, c=$current_cell)
+def pp(_op, _p = nil, c=$current_cell)
   k! c
   s! c
-  pa _op, c
-  pa _p, c
+  send _op, c
+  send _p, c unless _p.nil?
 end
 
-def slot(c, &block)
+def slot(c=$current_cell, &block)
   old_cell, $current_cell = $current_cell, c
-  yield block
+  yield if block_given?
   $current_cell = old_cell
 end
