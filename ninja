@@ -21,13 +21,11 @@ require './lib/dsl'
 # Eg. (inf loop example) s ; get ; i ; zero
 
 slot 0 do
-    s; inc; i; 
-end
+    s; inc; i # set up inner code
 
-slot 1 do
-    s; get; k!; s!; get; zero; 
-end
+    slot(1) { s; get; pp :get, :zero }
 
-slot 0 do
-    put!; get; k!; s!; succ; zero; zero
+    put! # clear slot 0
+    get; pp :succ, :zero
+    zero # execute
 end
