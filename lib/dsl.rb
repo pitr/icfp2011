@@ -1,9 +1,9 @@
 $current_cell = 0
 
 {
-  s: :S,
-  k: :K,
-  i: :I
+  :s => :S,
+  :k => :K,
+  :i => :I
 }.each{|m,op|eval"def #{m}(c=$current_cell); pa :#{op},c; end;def #{m}!(c=$current_cell); op :#{op},c; end;"}
 
 [
