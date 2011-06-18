@@ -20,11 +20,15 @@ require './lib/dsl'
 #
 # Eg. (inf loop example) s ; get ; i ; zero
 
-zero ; succ! ; attack!
-
-# inc ; s! ; inc
-slot 5 do
-  # TRY to define SII(SII) in clot 5
-  s! ; i ; i
-  s! ; k! ; s! ; i ; k
+# define SII(SII) in clot 5
+slot 0 do
+  s ; i ; i
+  slot(5) { s! ; i ; pp :get, :zero }
+  put! # clear 0
 end
+
+
+s
+  get
+  dec
+  zero
