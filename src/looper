@@ -1,0 +1,118 @@
+#!/usr/bin/env ruby
+
+require './lib/dsl'
+
+##### 30 turns
+# build 2^8 = 8192
+if true
+  slot 2 do
+    zero ; succ!
+    13.times { dbl! }
+  end
+end
+
+##### 44 turns
+# build 10k-1 == 9999
+if false then
+  slot 2 do
+    zero ; succ!
+    3.times { dbl! }
+    succ!
+    dbl! ; succ!
+    dbl! ; succ!
+    4.times { dbl! }
+    4.times { dbl! ; succ! }
+  end
+end
+
+##### 602 turns total (including setup from above)
+# heal from 10k to 20k
+def heal
+  1.times do
+    lisp :inc, :zero
+    lisp :help,
+      :zero,
+      :zero,
+      [:get, [:succ, [:succ, :zero]]]
+  end
+end
+
+##### 214-23 total turns
+# heals 48493 at once, calls help using value stored in slot 2 (setup above)
+def setup_rec_heal
+  lisp :s,
+          [:s, [:k, :get], [:k, :zero] ],
+          [:s,
+            [:s,
+              [:k, [:help, :zero, :zero] ], 
+              [:s,
+                 [:k, :get],
+                 :i] ],
+            [:k, :zero]
+          ]
+  k!; s!; succ; k!; s!; succ;
+end
+
+# attack for 9k points, dealing 10k damage to own slot 0
+def kick
+  lisp :attack,
+    :zero,
+    [:get, [:succ, :zero]],
+    [:succ, [:get, [:succ, [:succ, :zero]]]] # 1+9999
+end
+
+# attack for 9k points, dealing 10k damage to own slot 0
+def setup_punch
+  slot 0 do
+    lisp :attack,
+      :zero,
+      [:get, [:succ, [:succ, [:succ, :zero]]]] # slot to attack
+    k!; s!; dbl; k!; s!; get; k!; s!; succ; k!; s!; succ
+  #    [:dbl, [:get, [:succ, [:succ]]]] # 1+9999
+  end
+end
+
+setup_rec_heal
+# copy into slot 1.. this is easier (and faster) than setting up a formula
+slot(1) { get; zero; }
+# heal once.. we are now at 48493
+zero
+
+def super_heal
+  lisp :get, [:succ, :zero]
+  zero
+end
+
+# heal again, which will max us out at 65535
+super_heal
+
+#####
+# slot 0: active slot.. current functions are run from there
+# slot 1: stores copy of rec_heal
+# slot 2: stores LARGE_NUM, used for attack/heal
+# slot 3: stores slot to attack
+# slot 4: stores copy of punch
+
+slot(3) { zero } # start with slot 0
+
+# start attacking
+0.upto(255) do |j|
+  if j > 0 and j % 2 == 1 then
+    super_heal
+  end
+
+  # copy punch into slot 0
+  setup_punch
+
+  # attack
+  slot(0) { zero }
+
+  # next slot
+  slot(3) { succ! } 
+end
+
+# if they're not dead yet.. just keep healing
+while true do
+  put!
+  super_heal
+end
