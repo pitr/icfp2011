@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+
+require './lib/dsl'
+
+def recurse_attack
+    slot 0 do
+        zero; succ!;
+        12.times { dbl! }
+    end
+
+    slot 1 do
+        attack
+          zero
+          pp :succ, :zero
+          pp :get, :zero
+    end
+end
+
+# recurse dec()
+# save formula in slot 0
+slot 0 do
+    slot(1) { s; dec; i }
+    slot(2) { s; pp :k, :get; pp :k, :zero }
+    s
+      pp :get, :succ, :succ, :zero
+      pp :get, :succ, :zero
+    slot(1) { put! }
+    slot(2) { put! }
+end
+
+# save index in slot 1
+slot 1 do
+    zero; succ!
+end
+
+2.upto(255) do |j|
+    # update index
+    slot(1) { succ! }
+
+    # copy formula into slot
+    slot(j) { get; zero }
+    1.upto(91) do |i|
+        slot(j) { pp :get, :succ, :zero; get; zero }
+    end
+end
