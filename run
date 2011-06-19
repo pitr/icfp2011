@@ -1,16 +1,69 @@
-#!/bin/sh
-opp()
-{
-  read a
-  read b
-  read c
-  echo $a
-  echo $b
-  echo $c
-}
-if [ $1 = "0" ]; then
-  echo "1"
-  echo "I"
-  echo "0"
-fi
-while [ true ]; do opp; done
+#!/usr/bin/env ruby
+
+# run as:
+#   ltg match killa dummy 2>&1 | grep "=\|Exception" | grep -v Sys_error | head -n 30
+#
+# 2>&1 because ltg send to stderr
+# grep for = and Exception to see slots and any errors
+# grep agains Sys_error 'cause I get pipe errors, bullshit
+# head 30 in case you got an infinite loop...
+
+
+
+require './lib/dsl'
+# DSL docs:
+# all commands use small letters
+#
+# To apply as function (code 2) add ! at the end
+#
+# default slot is 0, pass an integer to use another
+#
+# Eg. (inf loop example) s ; get ; i ; zero
+
+#slot 0 do
+#    s; inc; i # set up inner code
+#
+#    slot(1) { s; get; pp :get, :zero }
+#
+#    put! # clear slot 0
+#    get; pp :succ, :zero
+#    zero # execute
+#end
+
+def recurse_attack()
+    slot 0 do
+        zero; succ!;
+        dbl!; dbl!; dbl!; dbl!; dbl!; dbl!; dbl!; dbl!;
+        dbl!; dbl!; dbl!; dbl!; #dbl!; dbl!; dbl!; dbl!;
+    end
+
+    slot 1 do
+        attack; zero; pp :succ, :zero; pp :get, :zero
+    end
+end
+
+# recurse dec()
+# save formula in slot 0
+slot 0 do
+    slot(1) { s; dec; i } 
+    slot(2) { s; pp :k, :get; pp :k, :zero }
+    s; pp :get, :succ, :succ, :zero; pp :get, :succ, :zero;
+    slot(1) { put! }
+    slot(2) { put! }
+end
+
+# save index in slot 1
+slot 1 do
+    zero; succ!
+end
+
+for j in 2..255:
+    # update index
+    slot(1) { succ! }
+
+    # copy formula into slot
+    slot(j) { get; zero }
+    for i in 1..91 do
+        slot(j) { pp :get, :succ, :zero; get; zero }
+    end
+end

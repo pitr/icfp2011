@@ -42,14 +42,28 @@ def recurse_attack()
     end
 end
 
-def recurse_dec()
-    slot 0 do
-        slot(1) { s; dec; i } 
-        s; get; pp :get, :succ, :zero; zero
-    end
+# recurse dec()
+# save formula in slot 0
+slot 0 do
+    slot(1) { s; dec; i } 
+    slot(2) { s; pp :k, :get; pp :k, :zero }
+    s; pp :get, :succ, :succ, :zero; pp :get, :succ, :zero;
+    slot(1) { put! }
+    slot(2) { put! }
 end
 
-recurse_dec
-slot(0) { put! }
-slot(1) { put! }
-recurse_attack
+# save index in slot 1
+slot 1 do
+    zero; succ!
+end
+
+for j in 2..255:
+    # update index
+    slot(1) { succ! }
+
+    # copy formula into slot
+    slot(j) { get; zero }
+    for i in 1..91 do
+        slot(j) { pp :get, :succ, :zero; get; zero }
+    end
+end
