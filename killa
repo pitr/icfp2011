@@ -2,6 +2,10 @@
 
 require './lib/dsl'
 
+# :::NEW::: API example
+# slot(5) { num254 }
+# lisp :attack, :slot5
+
 # build 10k-1 == 9999
 slot 2 do
   zero ; succ!

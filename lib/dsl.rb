@@ -4,6 +4,25 @@ $current_cell = 0
 :dec,:attack,:help,:copy,:revive,:zombie
 ].each{|op|eval"def #{op.to_s.downcase}(c=$current_cell); pa :#{op},c; end;def #{op.to_s.downcase}!(c=$current_cell); op :#{op},c; end;"}
 
+def method_missing(_op)
+  # adds operator numXXX, where XXX is any number
+  if _op.to_s =~ /^num(\d+)$/
+    num = $1.to_i
+    if num == 0
+      zero
+    elsif num %2 == 0 # even
+      lisp :dbl, "num#{num/2}".to_sym
+    else # odd
+      lisp :succ, "num#{num-1}".to_sym
+    end
+  # adds operator slotYYY, where YYY is any slot number
+  elsif _op.to_s =~ /^slot(\d+)$/
+    lisp :get, "num#{$1}".to_sym
+  else
+    super
+  end
+end
+
 def op(op, c=$current_cell)
   return op.each {|op2| op op2, c} if op.is_a? Array
   puts 1
