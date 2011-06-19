@@ -1,28 +1,8 @@
 $current_cell = 0
 
-class Symbol
-  def downcase
-    self.to_s.tr 'QWERTYUIOPASDFGHJKLZXCVBNM', 'qwertyuiopasdfghjklzxcvbnm'
-  end
-end
-
-[
-:S,
-:K,
-:I,
-:zero,
-:succ,
-:dbl,
-:get,
-:put, # === KI
-:inc,
-:dec,
-:attack,
-:help,
-:copy,
-:revive,
-:zombie
-].each{|op|eval"def #{op.downcase}(c=$current_cell); pa :#{op},c; end;def #{op.downcase}!(c=$current_cell); op :#{op},c; end;"}
+[:S,:K,:I,:zero,:succ,:dbl,:get,:put,:inc,
+:dec,:attack,:help,:copy,:revive,:zombie
+].each{|op|eval"def #{op.to_s.downcase}(c=$current_cell); pa :#{op},c; end;def #{op.to_s.downcase}!(c=$current_cell); op :#{op},c; end;"}
 
 def op(op, c=$current_cell)
   return op.each {|op2| op op2, c} if op.is_a? Array
@@ -39,6 +19,7 @@ def pa(op, c=$current_cell)
 end
 
 # Applies a _p function
+# returns _op(_p0(_p1(p2(...))))
 def pp(_op, *_p)
   k!
   s!
