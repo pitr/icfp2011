@@ -5,24 +5,13 @@ require './lib/dsl'
 ##### 30 turns
 # build 2^8 = 8192
 if true
-  slot 2 do
-    zero ; succ!
-    13.times { dbl! }
-  end
+  slot(2) { num8192 }
 end
 
 ##### 44 turns
 # build 10k-1 == 9999
 if false then
-  slot 2 do
-    zero ; succ!
-    3.times { dbl! }
-    succ!
-    dbl! ; succ!
-    dbl! ; succ!
-    4.times { dbl! }
-    4.times { dbl! ; succ! }
-  end
+  slot(2) { num9999 }
 end
 
 ##### 602 turns total (including setup from above)
@@ -85,7 +74,7 @@ def super_heal
 end
 
 # heal again, which will max us out at 65535
-super_heal
+#super_heal
 
 #####
 # slot 0: active slot.. current functions are run from there
@@ -115,24 +104,59 @@ def perform_attack
   end
 end
 
-def setup_rec_attack_heal
-  lisp :s,
-          [:attack, :zero, [:get, [:succ, [:succ, [:succ, :zero]]]]],
-          [:s,
+def setup_heal10_rec
+  slot 8 do
+    lisp :s,
+        [:s,
+          [:help, :zero, :zero],
+          [:s, 
+            [:help, :zero, :zero],
+            [:s,
               [:help, :zero, :zero],
               [:s,
+                [:help, :zero, :zero],
+                [:s,
+                  [:help, :zero, :zero],
                   [:s,
-                    [:k, :get],
-                    [:k, :zero]],
-                  [:k, :zero]]]
-  k!; s!; get; k!; s!; succ; k!; s!; succ
-#  lisp :get, [:succ, [:succ, :zero]]
+                    [:help, :zero, :zero],
+                    [:s,
+                      [:help, :zero, :zero],
+                      [:s,
+                        [:help, :zero, :zero],
+                        [:s,
+                          [:help, :zero, :zero],
+                          [:s,
+                            [:help, :zero, :zero],
+                            [:help, :zero, :zero]]]]]]]]]]],
+        [:s,
+            [:s,
+                [:k, :get],
+                [:k, :zero]],
+            [:k, :zero]]
+  end
+end
 
+def setup_rec_attack_heal
+  lisp :s, [:attack, :zero, :slot3], :slot8
+  k!; s!; get; k!; s!; succ; k!; s!; succ
 end
 
 slot(3) { zero } # start with slot 0
-setup_rec_attack_heal
-zero
+setup_heal10_rec
+
+0.upto(1) do |i|
+  setup_rec_attack_heal
+  zero
+  " This isn't working yet.. we need to zombify slot3 with the code in slot8,
+    and bind it inside K()
+  "
+  "
+  zombie 
+  slot3
+  k!; s!; s; k!; s!; k; slot8; k!; s!; k; zero
+  "
+  slot(3) { succ! }
+end
 
 # if they're not dead yet.. just keep healing
 while false do
