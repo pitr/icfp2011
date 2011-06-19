@@ -35,8 +35,13 @@ end
 slot(1) { zero } # start with slot 0
 
 # kill a couple of slots
-2.times do
+count = 0
+while true do
   # heal to 20k, kick (losing 10k), heal to 20k, kick the remaining 1k
   heal ; kick ; heal ; kick
   slot(1) { succ! } # get next slot
+  count = count + 1
+  if count == 255 then
+    slot(1) { put!; zero }
+  end
 end

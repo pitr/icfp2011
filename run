@@ -1,46 +1,47 @@
 #!/usr/bin/ruby1.9.1
 
-
 require './lib/dsl'
 
-def recurse_attack
-    slot 0 do
-        zero; succ!;
-        12.times { dbl! }
-    end
-
-    slot 1 do
-        attack
-          zero
-          pp :succ, :zero
-          pp :get, :zero
-    end
+# build 10k-1 == 9999
+slot 2 do
+  zero ; succ!
+  3.times { dbl! }
+  succ!
+  dbl! ; succ!
+  dbl! ; succ!
+  4.times { dbl! }
+  4.times { dbl! ; succ! }
 end
 
-# recurse dec()
-# save formula in slot 0
-slot 0 do
-    slot(1) { s; dec; i }
-    slot(2) { s; pp :k, :get; pp :k, :zero }
-    s
-      pp :get, :succ, :succ, :zero
-      pp :get, :succ, :zero
-    slot(1) { put! }
-    slot(2) { put! }
+# heal from 10k to 20k
+def heal
+  10.times do
+    lisp :help,
+      :zero,
+      :zero,
+      [:get, [:succ, [:succ, :zero]]]
+    lisp :inc, :zero
+  end
 end
 
-# save index in slot 1
-slot 1 do
-    zero; succ!
+# attack for 9k points, dealing 10k damage to own slot 0
+def kick
+  lisp :attack,
+    :zero,
+    [:get, [:succ, :zero]],
+    [:succ, [:get, [:succ, [:succ, :zero]]]] # 1+9999
 end
 
-2.upto(255) do |j|
-    # update index
-    slot(1) { succ! }
+slot(1) { zero } # start with slot 0
 
-    # copy formula into slot
-    slot(j) { get; zero }
-    1.upto(91) do |i|
-        slot(j) { pp :get, :succ, :zero; get; zero }
-    end
+# kill a couple of slots
+count = 0
+while true do
+  # heal to 20k, kick (losing 10k), heal to 20k, kick the remaining 1k
+  heal ; kick ; heal ; kick
+  slot(1) { succ! } # get next slot
+  count = count + 1
+  if count == 255 then
+    slot(1) { put!; zero }
+  end
 end
