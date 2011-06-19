@@ -18,16 +18,44 @@ def pa(op, c=$current_cell)
   puts op.to_s
 end
 
+# shortcut to an SK trick
+def sk! ; k! ; s! ; end
+
 # Applies a _p function
 # returns _op(_p0(_p1(p2(...))))
 def pp(_op, *_p)
-  k!
-  s!
+  sk!
   send _op
   if _p.length > 1
     pp _p.shift, *_p
   else
     send _p.first unless _p.nil?
+  end
+end
+
+# Builds code for ya
+# lisp(
+#   :s, :i, :i, [:get, [:succ, :zero]]
+# )
+def lisp(*ops)
+  case ops.length
+  when 1
+    send ops.first
+  when 2
+    sk!
+      lisp *ops[0]
+      lisp *ops[1]
+  when 3
+    sk! ; sk! ; sk! ; s
+      lisp *ops[0]
+      sk! ; k ; lisp *ops[2]
+      lisp *ops[1]
+  when 4
+    sk! ; sk! ; sk! ; sk! ; s
+      lisp *ops[0]
+      sk! ; k ; lisp *ops[2]
+      lisp *ops[1]
+      lisp *ops[3]
   end
 end
 
