@@ -94,26 +94,48 @@ super_heal
 # slot 3: stores slot to attack
 # slot 4: stores copy of punch
 
-slot(3) { zero } # start with slot 0
-slot(2) { dbl! }
+def perform_attack
+  slot(3) { zero } # start with slot 0
+  slot(2) { dbl! }
 
-# start attacking
-0.upto(255) do |j|
-  if j > 0 and j % 2 == 1 then
-    super_heal
+  # start attacking
+  0.upto(255) do |j|
+    if j > 0 and j % 2 == 1 then
+      super_heal
+    end
+
+    # copy punch into slot 0
+    setup_punch
+
+    # attack
+    slot(0) { zero }
+
+    # next slot
+    slot(3) { succ! } 
   end
-
-  # copy punch into slot 0
-  setup_punch
-
-  # attack
-  slot(0) { zero }
-
-  # next slot
-  slot(3) { succ! } 
 end
 
+def setup_rec_attack_heal
+  lisp :s,
+          [:attack, :zero, [:get, [:succ, [:succ, [:succ, :zero]]]]],
+          [:s,
+              [:help, :zero, :zero],
+              [:s,
+                  [:s,
+                    [:k, :get],
+                    [:k, :zero]],
+                  [:k, :zero]]]
+  k!; s!; get; k!; s!; succ; k!; s!; succ
+#  lisp :get, [:succ, [:succ, :zero]]
+
+end
+
+slot(3) { zero } # start with slot 0
+setup_rec_attack_heal
+zero
+
 # if they're not dead yet.. just keep healing
-while true do
+while false do
+  perform_attack
   slot(0) { put!; zero; revive!; super_heal }
 end
