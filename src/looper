@@ -114,7 +114,6 @@ slot(2) { dbl! }
 end
 
 # if they're not dead yet.. just keep healing
-while false do
-  put!
-  super_heal
+while true do
+  slot(0) { put!; zero; revive!; super_heal }
 end
