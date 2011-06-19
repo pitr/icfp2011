@@ -1,4 +1,5 @@
 $current_cell = 0
+$we_go_second = false
 
 [:S,:K,:I,:zero,:succ,:dbl,:get,:put,:inc,
 :dec,:attack,:help,:copy,:revive,:zombie
@@ -24,17 +25,21 @@ def method_missing(_op)
 end
 
 def op(op, c=$current_cell)
-  return op.each {|op2| op op2, c} if op.is_a? Array
-  puts 1
-  puts op.to_s
-  puts c
+  $stdout.puts "1"
+  $stdout.puts op.to_s
+  $stdout.puts c.to_s
+  $stdout.flush
+  _record_proponents_move 1, op, c
+  _read_opponents_move
 end
 
 def pa(op, c=$current_cell)
-  return op.each {|op2| p op2, c} if op.is_a? Array
-  puts 2
-  puts c
-  puts op.to_s
+  $stdout.puts "2"
+  $stdout.puts c.to_s
+  $stdout.puts op.to_s
+  $stdout.flush
+  _record_proponents_move 2, op, c
+  _read_opponents_move
 end
 
 # shortcut to an SK trick
@@ -82,4 +87,22 @@ def slot(c=$current_cell, &block)
   old_cell, $current_cell = $current_cell, c
   yield if block_given?
   $current_cell = old_cell
+end
+
+# analyzer
+
+def _read_opponents_move
+  typ = $stdin.gets.to_i
+  case typ
+  when 1
+    op = $stdin.gets.strip
+    cell = $stdin.gets.to_i
+  when 2
+    cell = $stdin.gets.to_i
+    op = $stdin.gets.strip
+  end
+end
+
+if $we_go_second = (ARGV.shift.to_i == 1)
+  _read_opponents_move
 end
