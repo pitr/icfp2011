@@ -4,7 +4,7 @@ require './lib/dsl'
 
 ##### 30 turns
 # build 2^8 = 8192
-if true
+def build8192
   slot(2) { num8192 }
 end
 
@@ -62,11 +62,13 @@ def setup_punch
   end
 end
 
-setup_rec_heal
-# copy into slot 1.. this is easier (and faster) than setting up a formula
-slot(1) { get; zero; }
-# heal once.. we are now at 48493
-zero
+def heal_once
+  setup_rec_heal
+  # copy into slot 1.. this is easier (and faster) than setting up a formula
+  slot(1) { get; zero; }
+  # heal once.. we are now at 48493
+  zero
+end
 
 def super_heal
   lisp :get, [:succ, :zero]
@@ -141,25 +143,52 @@ def setup_rec_attack_heal
   k!; s!; get; k!; s!; succ; k!; s!; succ
 end
 
-slot(3) { zero } # start with slot 0
-setup_heal10_rec
+def setup
+  build8192
+  heal_once
 
-0.upto(1) do |i|
-  setup_rec_attack_heal
-  zero
-  " This isn't working yet.. we need to zombify slot3 with the code in slot8,
-    and bind it inside K()
-  "
-  "
-  zombie 
-  slot3
-  k!; s!; s; k!; s!; k; slot8; k!; s!; k; zero
-  "
-  slot(3) { succ! }
+  slot(3) { zero } # start with slot 0
+  setup_heal10_rec
 end
 
-# if they're not dead yet.. just keep healing
-while false do
-  perform_attack
-  slot(0) { put!; zero; revive!; super_heal }
+def loop_attack
+  0.upto(255) do |i|
+    setup_rec_attack_heal
+    zero
+    " This isn't working yet.. we need to zombify slot3 with the code in slot8,
+      and bind it inside K()
+    "
+    "
+    zombie 
+    slot3
+    k!; s!; s; k!; s!; k; slot8; k!; s!; k; zero
+    "
+    slot(3) { succ! }
+  end
 end
+
+def main
+  setup
+  while true do
+    loop_attack
+
+    # re-initialize state
+    slot(0) { put! }
+    slot(1) { put! }
+    slot(2) { put! }
+    slot(3) { put! }
+    slot(4) { put! }
+    slot(8) { put! }
+    setup
+
+    # revive all slots
+    slot(0) { put!; zero; revive!; super_heal }
+    slot(1) { put!; zero; revive!; super_heal }
+    slot(2) { put!; zero; revive!; super_heal }
+    slot(3) { put!; zero; revive!; super_heal }
+    slot(4) { put!; zero; revive!; super_heal }
+    slot(8) { put!; zero; revive!; super_heal }
+  end
+end
+
+main
