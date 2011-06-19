@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+require './lib/dsl'
+
+# build 10k-1 == 9999
+slot 2 do
+  zero ; succ!
+  3.times { dbl! }
+  succ!
+  dbl! ; succ!
+  dbl! ; succ!
+  4.times { dbl! }
+  4.times { dbl! ; succ! }
+end
+
+# heal from 10k to 20k
+def heal
+  10.times do
+    lisp :help,
+      :zero,
+      :zero,
+      [:get, [:succ, [:succ, :zero]]]
+    lisp :inc, :zero
+  end
+end
+
+# attack for 9k points, dealing 10k damage to own slot 0
+def kick
+  lisp :attack,
+    :zero,
+    [:get, [:succ, :zero]],
+    [:succ, [:get, [:succ, [:succ, :zero]]]] # 1+9999
+end
+
+slot(1) { zero } # start with slot 0
+
+# kill a couple of slots
+2.times do
+  # heal to 20k, kick (losing 10k), heal to 20k, kick the remaining 1k
+  heal ; kick ; heal ; kick
+  slot(1) { succ! } # get next slot
+end
